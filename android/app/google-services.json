@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "56917404063",
+    "project_id": "landbroker-f2917",
+    "storage_bucket": "landbroker-f2917.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56917404063:android:0e6cedb22a53e0348df5aa",
+        "android_client_info": {
+          "package_name": "com.example.investment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "56917404063-1i9drl2o033ni2l21hnhphed96ve6hml.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlqXgmRWIdB99s78kKFAhx4aOI5YUwSlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "56917404063-1i9drl2o033ni2l21hnhphed96ve6hml.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
