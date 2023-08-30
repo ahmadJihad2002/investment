@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
+
+        android:requestLegacyExternalStorage="true"
         android:label="investment"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">

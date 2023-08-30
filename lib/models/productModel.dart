@@ -1,13 +1,13 @@
-import 'dart:ffi';
+import 'dart:io';
 
 class ProductModel {
-  late int id;
+  // late int id;
   late double price;
-  late String image;
+  List<String> image = [];
   late String place;
   late bool isTaboo;
-  late Double space;
-  late Double classification;
+  late double space;
+  late String classification;
 
 // dynamic? oldPrice;
 // dynamic? discount;
@@ -15,13 +15,16 @@ class ProductModel {
 // String? name;
 // bool? inCart;
 
-  ProductModel.formJson(Map<String, dynamic> json) {
-    id = json['id'];
-    price = json['price'];
-    image = json['image'];
+  ProductModel.fromJson(Map<String, dynamic> json) {
+    // id = json['id'];
+    price = json['price'].toDouble();
+
+    json['imagesName'].forEach((element) {
+      image.add(element);
+    });
     place = json['place'];
     isTaboo = json['isTaboo'];
-    space = json['space'];
+    space = json['space'].toDouble();
     classification = json['classification'];
   }
 }
