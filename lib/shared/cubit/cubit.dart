@@ -17,66 +17,72 @@ class AppCubit extends Cubit<AppStates> {
 
   static AppCubit get(context) => BlocProvider.of(context);
 
-  Function navigateToNextScreen(BuildContext context, String screen) {
-    // Perform navigation here
-    return () {
-      Navigator.pushNamed(context, screen);
-    };
-  }
-
   List<ProductModel?> productModel = [];
 
   Future<void> getHomeData() async {
     emit(AppLoadingProductsStates());
     productModel.clear();
-    CollectionReference productDocument = FirebaseFirestore.instance
-        .collection('products')
-        .doc(token)
-        .collection('products');
+  await  FirebaseFirestore.instance.collection('products').get().then((value) {
+      value.docs.forEach((element) async {
+        ProductModel productData = ProductModel.fromJson(element.data());
+        // converting image name with image URl
+        List<Future<String>> imageUrlFutures =
+            productData.image.map((imageName) {
+          return getImageUrl(imageName); // getImageUrl returns a Future<String>
+        }).toList();
+        List<String> updatedImageUrls = await Future.wait(imageUrlFutures);
+        productData.image
+            .replaceRange(0, productData.image.length, updatedImageUrls);
 
-    try {
-      // Fetch the document data
-      DocumentSnapshot documentSnapshot =
-          await productDocument.doc('products').get();
-
-      if (documentSnapshot.exists) {
-        // Access the data of the document
-        Map<String, dynamic> data =
-            jsonDecode(jsonEncode(documentSnapshot.data()));
-
-        print('Document ID: ${documentSnapshot.id}');
-        print('Document Data: $data');
-        for (int i = 0; i < data['arr'].length; i++) {
-          ProductModel productData = ProductModel.fromJson(data['arr'][i]);
-
-          List<Future<String>> imageUrlFutures =
-              productData.image.map((imageName) {
-            return getImageUrl(
-                imageName); // getImageUrl returns a Future<String>
-          }).toList();
-          List<String> updatedImageUrls = await Future.wait(imageUrlFutures);
-          productData.image
-              .replaceRange(0, productData.image.length, updatedImageUrls);
-
-          // productData.image.replaceRange(0, productData.image.length,
-          //     List.generate(productData.image.length, (index) =>
-          //         getImageUrl(productData.image[index]))
-          // )
-
-          productModel.add(productData);
-        }
-        emit(AppSuccessProductsStates());
-      } else {
-        print('Document does not exist');
-      }
-    } catch (error, stackTrace) {
+        productModel.add(productData);
+        print('test');
+        print(productData);
+      });
+      emit(AppSuccessProductsStates());
+    }).catchError((error, stackTrace) {
       emit(AppErrorProductsStates());
       print('Stack Trace: $stackTrace');
       print('Error fetching document from Firestore: $error');
-    }
+    });
   }
 
-  // getting the image URl By combining image name with the path
+// try {
+//   // Fetch the document data
+//   DocumentSnapshot documentSnapshot =
+//       await productDocument.doc('products').get();
+//
+//   if (documentSnapshot.exists) {
+//     // Access the data of the document
+//     Map<String, dynamic> data =
+//         jsonDecode(jsonEncode(documentSnapshot.data()));
+//
+//     print('Document ID: ${documentSnapshot.id}');
+//     print('Document Data: $data');
+//     for (int i = 0; i < data['arr'].length; i++) {
+//       ProductModel productData = ProductModel.fromJson(data['arr'][i]);
+//
+//       List<Future<String>> imageUrlFutures =
+//           productData.image.map((imageName) {
+//         return getImageUrl(
+//             imageName); // getImageUrl returns a Future<String>
+//       }).toList();
+//       List<String> updatedImageUrls = await Future.wait(imageUrlFutures);
+//       productData.image
+//           .replaceRange(0, productData.image.length, updatedImageUrls);
+//
+//       productModel.add(productData);
+//     }
+//     emit(AppSuccessProductsStates());
+//   } else {
+//     print('Document does not exist');
+//   }
+// } catch (error, stackTrace) {
+//   emit(AppErrorProductsStates());
+//   print('Stack Trace: $stackTrace');
+//   print('Error fetching document from Firestore: $error');
+// }
+
+// getting the image URl By combining image name with the path
   Future<String> getImageUrl(String imageName) async {
     Reference storageReference =
         FirebaseStorage.instance.ref().child('/pictures/$imageName');
@@ -92,40 +98,18 @@ class AppCubit extends Cubit<AppStates> {
     }
   }
 
-//
-// CollectionReference collection =
-// FirebaseFirestore.instance.collection('products');
-// // Adding data to Firestore database
-// await collection
-//     .doc(FirebaseAuth.instance.currentUser!.uid)
-//     .collection('products')
-//     .doc('products')
-//     .get().data() .then((value) {
-//
-//    value.docs.forEach((DocumentSnapshot documentSnapshot) {
-//     Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
-//     print('Product ID: ${documentSnapshot.id}');
-//     print('Product Data: $data');
-//
-//
-//   print(value.toString());
-//   print(value);
-//   // productModel =ProductModel.formJson(value );
-//
-//   emit(AppSuccessProductsStates());
-//   print('added some shit ');
-// }).catchError((error) {
-//   emit(AppErrorProductsStates());
-//   print('error');
-//   print(error.toString());
-// });
-// }
-
   String selectedCity = 'دورا';
 
   void setCity(String? city) {
     selectedCity = city ?? 'دورا';
     emit(AppCitySelectedState());
+  }
+
+  bool isTaboo = false;
+
+  void setIsTaboo(bool value) {
+    isTaboo = value;
+    emit(AppIsTabooChangeState());
   }
 
   List<String> westBankCitiesArabic = [
@@ -198,17 +182,11 @@ class AppCubit extends Cubit<AppStates> {
     /// uploading the pictures into firebase storage by loop
     for (int i = 0; i < image.length; i++) {
       String imageName = getImageNameFromPath(image[i]);
-      uploadPhotoToStorage(imageFile: image[i], imageName: imageName);
+      await uploadPhotoToStorage(imageFile: image[i], imageName: imageName);
     }
 
     // Adding data to Firestore database
-    await collection
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('products')
-        .doc('products')
-        .update({
-      'arr': FieldValue.arrayUnion([data])
-    }).then((value) {
+    await collection.doc().set(data).then((value) {
       emit(AppSuccessSendingProductState());
       print('added some shit ');
     }).catchError((error) {
@@ -218,16 +196,27 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
+  Future<void> deleteProduct() async {
+    CollectionReference collection =
+        FirebaseFirestore.instance.collection('products');
+
+    await collection
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('products')
+        .doc('products')
+        .delete();
+  }
+
 // Upload photo to Firebase Storage
   Future<void> uploadPhotoToStorage(
       {required File imageFile, required String imageName}) async {
-    emit(AppImageSendLoadingSelectedState());
+    // emit(AppImageSendLoadingSelectedState());
     Reference storageReference =
         FirebaseStorage.instance.ref().child('pictures/$imageName');
     UploadTask uploadTask = storageReference.putFile(imageFile);
     print('csd');
     await uploadTask.whenComplete(() {
-      emit(AppImageSendSuccessSelectedState());
+      // emit(AppImageSendSuccessSelectedState());
       print('Image uploaded');
     });
   }

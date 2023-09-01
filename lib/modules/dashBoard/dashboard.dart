@@ -23,6 +23,8 @@ class DashBoard extends StatelessWidget {
     return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {
         if (state is AppSuccessSendingProductState) {
+          Navigator.pop(context);
+
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               backgroundColor: Colors.green,
               content: Text('تم الارسال بنجاح ')));
@@ -35,13 +37,11 @@ class DashBoard extends StatelessWidget {
             leading: IconButton(
               onPressed: () {
                 cubit.getHomeData();
-
                 Navigator.pop(context);
               },
               icon: Icon(Icons.arrow_back_ios_new),
             ),
-               automaticallyImplyLeading: false,
-
+            automaticallyImplyLeading: false,
           ),
           body: SafeArea(
             child: SingleChildScrollView(
@@ -97,11 +97,11 @@ class DashBoard extends StatelessWidget {
                       const SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
                             width: 200,
-                            height: 40,
+                            height: 50,
                             child: defaultFormField(
                               maxLine: 1,
                               controller: price,
@@ -130,20 +130,26 @@ class DashBoard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      SizedBox(
-                        width: 200,
-                        height: 40,
-                        child: defaultFormField(
-                          maxLine: 1,
-                          controller: space,
-                          inputType: TextInputType.number,
-                          label: 'المساحة/متر',
-                          validate: (value) {
-                            if (value.isEmpty) {
-                              return "قم بإدخال المساحة بالأول";
-                            }
-                          },
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 50,
+                            width: 200,
+                            child: defaultFormField(
+                              maxLine: 1,
+                              controller: space,
+                              inputType: TextInputType.number,
+                              label: 'المساحة/متر',
+                              validate: (value) {
+                                if (value.isEmpty) {
+                                  return "قم بإدخال المساحة بالأول";
+                                }
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(
                         height: 10,
@@ -152,7 +158,7 @@ class DashBoard extends StatelessWidget {
                       defaultFormField(
                         controller: place,
                         inputType: TextInputType.text,
-                        label: 'العوان',
+                        label: 'العنوان',
                         icon: Icons.place,
                         validate: (value) {
                           if (value.isEmpty) {
@@ -165,33 +171,42 @@ class DashBoard extends StatelessWidget {
                         maxLine: null,
                         controller: detail,
                         inputType: TextInputType.multiline,
-                        label: 'تفاصيل',
-                        icon: Icons.place,
+                        label: 'التفاصيل',
+                        icon: Icons.info,
                         validate: (value) {
                           if (value.isEmpty) {
                             return "قم بإدخال العنوان بالأول";
                           }
                         },
                       ),
-                      const SizedBox(height: 10),
-                      ConditionalBuilder(
-                        condition: state is AppLoadingSendingProductState,
-                        builder: (context) => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        fallback: (context) => defaultButton(
-                          function: () {
-                            cubit.sendDataToFirestore(
-                              price: double.parse(price.text),
-                              place: place.text,
-                              space: double.parse(space.text),
-                              classification: detail.text,
-                              image: cubit.pickedFile,
-                              isTaboo: true,
-                            );
-                          },
-                          icon: Icons.add,
-                          text: "إضافة",
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ConditionalBuilder(
+                          condition: state is AppLoadingSendingProductState,
+                          builder: (context) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          fallback: (context) => defaultButton(
+                            function: () {
+                              if (_formKey.currentState?.validate() ?? false) {
+                                cubit.sendDataToFirestore(
+                                  price: double.parse(price.text),
+                                  place: place.text,
+                                  space: double.parse(space.text),
+                                  classification: detail.text,
+                                  image: cubit.pickedFile,
+                                  isTaboo: true,
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text('قم بتعبأة النموذج')));
+                              }
+                            },
+                            icon: Icons.add,
+                            text: "إضافة",
+                          ),
                         ),
                       )
                     ],

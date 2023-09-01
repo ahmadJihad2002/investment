@@ -14,5 +14,6 @@ class AppImageSendErrorSelectedState extends AppStates {}
 class AppLoadingSendingProductState extends AppStates {}
 class AppSuccessSendingProductState extends AppStates {}
 class AppErrorSendingProductState extends AppStates {}
+class AppIsTabooChangeState extends AppStates {}
 
 

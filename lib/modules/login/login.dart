@@ -21,7 +21,14 @@ class Login extends StatelessWidget {
       listener: (BuildContext context, Object? state) {
         if (state is AppLoginSuccessStates) {
           showToast(
-            text: 'حصل خطأ ما ',
+            text: 'تمت التسجيل بنجاح',
+            state: ToastStates.success,
+          );
+          Navigator.pushReplacementNamed(context, 'home');
+        }
+        if (state is AppLoginErrorStates) {
+          showToast(
+            text: state.error,
             state: ToastStates.error,
           );
           Navigator.pushReplacementNamed(context, 'home');

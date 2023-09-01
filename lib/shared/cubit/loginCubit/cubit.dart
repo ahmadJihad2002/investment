@@ -8,43 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:investment/shared/cubit/loginCubit/states.dart';
-import 'package:investment/shared/cubit/states.dart';
+
 import 'package:investment/shared/network/local/cache_helper.dart';
 
 class AppLoginCubit extends Cubit<AppLoginStates> {
   AppLoginCubit() : super(AppLoginInitialStates());
 
   static AppLoginCubit get(context) => BlocProvider.of(context);
-
-  // Function to add data to Firestore
-  Future<void> sendDataToFirestore(
-      {
-      // required int id,
-      required double price,
-      required List<File> image,
-      required String place,
-      required bool isTaboo,
-      required double space,
-      required String classification}) async {
-    CollectionReference collection =
-        FirebaseFirestore.instance.collection('products');
-
-    Map<String, dynamic> data = {
-      // 'id': id,
-      'price': price,
-      'image': image,
-      'place': place,
-      'isTaboo': isTaboo,
-      'space': space,
-      'classification': classification,
-    };
-    //
-    // cubit.uploadPhotoToStorage(
-    //     File(cubit.pickedFile[0].path), 'jj');
-
-    // Add data to Firestore
-    await collection.add(data);
-  }
 
   Future<void> userLogin({required String email, required password}) async {
     emit(AppLoginLoadingStates());
@@ -56,7 +26,7 @@ class AppLoginCubit extends Cubit<AppLoginStates> {
       CacheHelper.saveData(key: 'token', value: value.user?.uid);
       emit(AppLoginSuccessStates());
     }).catchError((error) {
-      emit(AppLoginErrorStates());
+      emit(AppLoginErrorStates(error.toString()));
       print(error.toString());
     });
   }

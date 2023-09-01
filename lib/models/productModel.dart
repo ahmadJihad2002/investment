@@ -9,11 +9,7 @@ class ProductModel {
   late double space;
   late String classification;
 
-// dynamic? oldPrice;
-// dynamic? discount;
-// String? image;
-// String? name;
-// bool? inCart;
+
 
   ProductModel.fromJson(Map<String, dynamic> json) {
     // id = json['id'];
