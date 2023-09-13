@@ -1,5 +1,3 @@
-import 'dart:io';
-
 class ProductModel {
   // late int id;
   late double price;
@@ -8,11 +6,11 @@ class ProductModel {
   late bool isTaboo;
   late double space;
   late String classification;
+  late String docId;
 
-
-
-  ProductModel.fromJson(Map<String, dynamic> json) {
+  ProductModel.fromJson(Map<String, dynamic> json, {required String docId}) {
     // id = json['id'];
+    this.docId = docId;
     price = json['price'].toDouble();
 
     json['imagesName'].forEach((element) {

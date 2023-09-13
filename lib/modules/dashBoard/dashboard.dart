@@ -1,11 +1,10 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:investment/shared/components/cardBuilder.dart';
 
 import 'package:investment/shared/components/components.dart';
 import 'dart:io';
-import 'package:investment/shared/cubit/cubit.dart';
-import 'package:investment/shared/cubit/cubit.dart';
 import 'package:investment/shared/cubit/cubit.dart';
 import 'package:investment/shared/cubit/states.dart';
 
@@ -20,37 +19,39 @@ class DashBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AppCubit, AppStates>(
-      listener: (context, state) {
-        if (state is AppSuccessSendingProductState) {
-          Navigator.pop(context);
+    AppCubit cubit = AppCubit.get(context);
 
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('تم الارسال بنجاح ')));
+    return BlocConsumer<AppCubit, AppStates>(
+      listener: (context, state) async {
+        if (state is AppSuccessSendingProductState) {
+          await cubit.getHomeData();
+          Navigator.pop(context);
+          showToast(state: ToastStates.success, text: 'تمن الاضافة بنجاح');
+        } else if (state is AppErrorSendingProductState) {
+          showToast(state: ToastStates.error, text: 'حصل خطأ ما ');
         }
       },
       builder: (context, state) {
-        AppCubit cubit = AppCubit.get(context);
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
               onPressed: () {
                 cubit.getHomeData();
                 Navigator.pop(context);
+                cubit.pickedFile.clear();
               },
               icon: Icon(Icons.arrow_back_ios_new),
             ),
             automaticallyImplyLeading: false,
           ),
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SingleChildScrollView(
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -94,7 +95,7 @@ class DashBoard extends StatelessWidget {
                                 ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,7 +130,7 @@ class DashBoard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -151,10 +152,8 @@ class DashBoard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       defaultFormField(
                         controller: place,
                         inputType: TextInputType.text,
@@ -166,7 +165,7 @@ class DashBoard extends StatelessWidget {
                           }
                         },
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       defaultFormField(
                         maxLine: null,
                         controller: detail,
@@ -192,7 +191,7 @@ class DashBoard extends StatelessWidget {
                               if (_formKey.currentState?.validate() ?? false) {
                                 cubit.sendDataToFirestore(
                                   price: double.parse(price.text),
-                                  place: place.text,
+                                  place: cubit.selectedCity,
                                   space: double.parse(space.text),
                                   classification: detail.text,
                                   image: cubit.pickedFile,

@@ -6,23 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:investment/models/productModel.dart';
 
-// class CardBuilder extends StatelessWidget {
-//   const CardBuilder({Key? key, required this.img}) : super(key: key);
-//
-//   final String img;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       child: Column(
-//         children: [
-//           Text('nigga'),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 Widget cardBuilder(
     {required BuildContext context, required ProductModel? productModel}) {
   return InkWell(
@@ -68,27 +51,37 @@ Widget cardBuilder(
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("المكان "),
+                    Text("المدينة ",
+                        style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 10),
                     Text(productModel?.place ?? 'لا يوجد'),
                   ],
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("طابو "),
-                    Text(productModel!.isTaboo ? 'يوجد' : 'لا يوجد'),
+                    Text("السعر/متر ",
+                        style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(productModel!.price.toString()),
                   ],
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("مساحة"),
-                    Text(productModel?.space.toString() ?? ''),
+                    Text("المساحة",
+                        style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(productModel.space.toString() ?? ''),
                   ],
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     ),

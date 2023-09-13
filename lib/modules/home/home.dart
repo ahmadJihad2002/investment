@@ -29,14 +29,20 @@ class Home extends StatelessWidget {
                       onPressed: () =>
                           Navigator.pushNamed(context, 'dashboard'),
                       icon: const Icon(Icons.add))),
-              body: ConditionalBuilder(
-                builder: (context) =>
-                    productBuilder(productModel: cubit.productModel),
-                condition: state is AppSuccessProductsStates,
-                fallback: (BuildContext context) {
-                  return const Center(child: CircularProgressIndicator());
-                },
-              )),
+              body: (cubit.productsModel.isEmpty &&
+                      state is! AppLoadingProductsStates)
+                  ? Center(
+                      child: Text('لا يوجد عقارات ',
+                          style: Theme.of(context).textTheme.displaySmall),
+                    )
+                  : ConditionalBuilder(
+                      builder: (context) =>
+                          productBuilder(productModel: cubit.productsModel),
+                      condition: state is AppSuccessProductsStates,
+                      fallback: (BuildContext context) {
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                    )),
         );
       },
     );
